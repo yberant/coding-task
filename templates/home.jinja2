@@ -1,0 +1,68 @@
+{% extends "base.jinja2" %}
+
+{% block title %}Home - Weather Dashboard{% endblock %}
+
+{% block content %}
+<div class="py-8 px-4 mx-auto max-w-screen-xl text-center lg:py-16">
+    <h1 class="mb-4 text-4xl font-extrabold tracking-tight leading-none text-gray-900 md:text-5xl lg:text-6xl dark:text-white">
+        Weather Dashboard
+    </h1>
+    <p class="mb-8 text-lg font-normal text-gray-500 lg:text-xl sm:px-16 lg:px-48 dark:text-gray-400">
+        Your personalized weather monitoring solution. Create custom widgets to track weather conditions
+        for any location worldwide. Stay informed with real-time updates, forecasts, and alerts.
+    </p>
+
+    <div class="flex flex-col space-y-4 sm:flex-row sm:justify-center sm:space-y-0 sm:space-x-4">
+        {% if request.user.is_authenticated %}
+            <a href="{{ url('dashboard') }}" class="inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900">
+                Go to Dashboard
+                <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                </svg>
+            </a>
+        {% else %}
+            <a href="{{ url('signup') }}" class="inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900">
+                Get Started
+                <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                </svg>
+            </a>
+            <a href="{{ url('login') }}" class="inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center text-gray-900 rounded-lg border border-gray-300 hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 dark:text-white dark:border-gray-700 dark:hover:bg-gray-700 dark:focus:ring-gray-800">
+                Sign In
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="py-8 px-4 mx-auto max-w-screen-xl lg:py-16">
+    <div class="grid md:grid-cols-3 gap-8">
+        <div class="bg-white rounded-lg shadow-md p-6 dark:bg-gray-800">
+            <div class="flex items-center justify-center w-10 h-10 mb-4 rounded-full bg-blue-100 dark:bg-blue-900">
+                <svg class="w-5 h-5 text-blue-600 dark:text-blue-300" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M5.5 13a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 13H5.5z"/>
+                </svg>
+            </div>
+            <h3 class="mb-2 text-xl font-bold dark:text-white">Custom Widgets</h3>
+            <p class="text-gray-500 dark:text-gray-400">Create personalized weather widgets for any city or location you want to monitor.</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6 dark:bg-gray-800">
+            <div class="flex items-center justify-center w-10 h-10 mb-4 rounded-full bg-blue-100 dark:bg-blue-900">
+                <svg class="w-5 h-5 text-blue-600 dark:text-blue-300" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+            <h3 class="mb-2 text-xl font-bold dark:text-white">Real-time Updates</h3>
+            <p class="text-gray-500 dark:text-gray-400">Get live weather data with automatic updates to keep you informed.</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6 dark:bg-gray-800">
+            <div class="flex items-center justify-center w-10 h-10 mb-4 rounded-full bg-blue-100 dark:bg-blue-900">
+                <svg class="w-5 h-5 text-blue-600 dark:text-blue-300" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
+                </svg>
+            </div>
+            <h3 class="mb-2 text-xl font-bold dark:text-white">Weather Alerts</h3>
+            <p class="text-gray-500 dark:text-gray-400">Receive notifications for severe weather conditions in your tracked locations.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
