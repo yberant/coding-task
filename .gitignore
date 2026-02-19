@@ -19,3 +19,6 @@ wheels/
 
 # OS
 .DS_Store
+
+# simple function and api call testing scripts
+playground

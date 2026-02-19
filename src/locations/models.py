@@ -16,4 +16,6 @@ class Location(models.Model):
             MaxValueValidator(180),
         ]
     )
-    
+
+    class Meta:
+        unique_together = [['city', 'country']]
