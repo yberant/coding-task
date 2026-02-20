@@ -149,6 +149,8 @@ def dashboard_view(request):
     except (KeyError, ValueError) as e:
         error_message = f"Error parsing weather data: {str(e)}"
 
+    
+
     return render(request, 'dashboard.jinja2', {
         'weather': weather_data,
         'error_message': error_message,

@@ -1,0 +1,108 @@
+{# Template context: location (model), weather_data (dict), error_msg (str) #}
+<div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4 relative group">
+    <div class="flex items-center justify-between">
+        <div>
+            <h3 class="text-white text-lg font-semibold">{{ location.city }}</h3>
+            <p class="text-blue-100 text-sm">{{ location.country }}</p>
+            <p class="text-blue-200 text-[10px] mt-1 opacity-80 font-mono">
+                {{ location.latitude|round(4) }}, {{ location.longitude|round(4) }}
+            </p>
+        </div>
+        <div class="flex items-center space-x-2">
+            <button 
+                hx-delete="{{ url('delete_location', location_id=location.id) }}"
+                hx-confirm="Are you sure you want to stop tracking {{ location.city }}, {{ location.country }}?"
+                class="text-blue-100 hover:text-white transition-colors p-1.5 rounded-full hover:bg-white/10"
+                title="Stop tracking"
+            >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+            </button>
+            {% if weather_data %}
+            <div class="w-10 h-10 flex items-center justify-center">
+                {% if weather_data.icon == 'sunny' %}
+                <svg class="w-8 h-8 text-yellow-300" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z"/>
+                </svg>
+                {% elif weather_data.icon == 'cloudy' %}
+                <svg class="w-8 h-8 text-gray-200" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M4.5 9.75a6 6 0 0111.573-2.226 3.75 3.75 0 014.133 4.303A4.5 4.5 0 0118 20.25H6.75a5.25 5.25 0 01-2.23-10.004 6.072 6.072 0 01-.02-.496z"/>
+                </svg>
+                {% elif weather_data.icon == 'rain' or weather_data.icon == 'drizzle' %}
+                <svg class="w-8 h-8 text-blue-200" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M4.5 9.75a6 6 0 0111.573-2.226 3.75 3.75 0 014.133 4.303A4.5 4.5 0 0118 20.25H6.75a5.25 5.25 0 01-2.23-10.004 6.072 6.072 0 01-.02-.496z"/>
+                    <path d="M8 16l-1 4M12 16l-1 4M16 16l-1 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                {% elif weather_data.icon == 'snow' %}
+                <svg class="w-8 h-8 text-blue-100" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M4.5 9.75a6 6 0 0111.573-2.226 3.75 3.75 0 014.133 4.303A4.5 4.5 0 0118 20.25H6.75a5.25 5.25 0 01-2.23-10.004 6.072 6.072 0 01-.02-.496z"/>
+                    <circle cx="8" cy="18" r="1" fill="white"/><circle cx="12" cy="17" r="1" fill="white"/><circle cx="16" cy="18" r="1" fill="white"/>
+                </svg>
+                {% elif weather_data.icon == 'storm' %}
+                <svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M4.5 9.75a6 6 0 0111.573-2.226 3.75 3.75 0 014.133 4.303A4.5 4.5 0 0118 20.25H6.75a5.25 5.25 0 01-2.23-10.004 6.072 6.072 0 01-.02-.496z"/>
+                    <path d="M13 12l-2 5h3l-2 5" stroke="yellow" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                </svg>
+                {% elif weather_data.icon == 'fog' %}
+                <svg class="w-8 h-8 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-width="2" d="M4 8h16M4 12h16M4 16h12"/>
+                </svg>
+                {% else %}
+                <svg class="w-8 h-8 text-gray-200" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M4.5 9.75a6 6 0 0111.573-2.226 3.75 3.75 0 014.133 4.303A4.5 4.5 0 0118 20.25H6.75a5.25 5.25 0 01-2.23-10.004 6.072 6.072 0 01-.02-.496z"/>
+                </svg>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if weather_data %}
+<div class="px-6 py-4">
+    <div class="flex items-center justify-between mb-4">
+        <div>
+            <span class="text-4xl font-bold text-gray-900 dark:text-white">{{ weather_data.temperature }}°</span>
+            <span class="text-gray-500 dark:text-gray-400 text-lg">C</span>
+        </div>
+        <div class="text-right">
+            <p class="text-gray-700 dark:text-gray-300 font-medium">{{ weather_data.description }}</p>
+            <p class="text-gray-500 dark:text-gray-400 text-xs">Feels like {{ weather_data.feels_like }}°C</p>
+        </div>
+    </div>
+    <div class="grid grid-cols-3 gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
+        <div class="text-center">
+            <svg class="w-5 h-5 mx-auto text-gray-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/>
+            </svg>
+            <p class="text-gray-500 dark:text-gray-400 text-[10px] uppercase">Hum</p>
+            <p class="text-gray-900 dark:text-white font-semibold text-xs">{{ weather_data.humidity }}%</p>
+        </div>
+        <div class="text-center">
+            <svg class="w-5 h-5 mx-auto text-gray-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+            </svg>
+            <p class="text-gray-500 dark:text-gray-400 text-[10px] uppercase">Wind</p>
+            <p class="text-gray-900 dark:text-white font-semibold text-xs">{{ weather_data.wind_speed }} <span class="text-[10px]">km/h</span></p>
+        </div>
+        <div class="text-center">
+            <svg class="w-5 h-5 mx-auto text-gray-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+            </svg>
+            <p class="text-gray-500 dark:text-gray-400 text-[10px] uppercase">Pres</p>
+            <p class="text-gray-900 dark:text-white font-semibold text-xs">{{ weather_data.pressure }} <span class="text-[10px]">hPa</span></p>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="px-6 py-10 flex flex-col items-center justify-center text-center">
+    <div class="bg-red-50 dark:bg-red-900/20 p-3 rounded-full mb-3">
+        <svg class="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+    </div>
+    <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">Weather data unavailable</p>
+    <p class="text-xs text-gray-500 dark:text-gray-400">{{ error_msg or "Failed to connect to weather service." }}</p>
+</div>
+{% endif %}

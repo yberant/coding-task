@@ -7,9 +7,10 @@ from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
 from django.db import IntegrityError
 
-from .services import find_city_data
+from .services import find_city_data, get_weather_data
 from .models import Location
-
+from django.http import HttpResponse
+from django.views.decorators.http import require_http_methods
 
 
 @login_required
@@ -88,28 +89,45 @@ def create_location_view(request):
         return Response({"error": "Invalid method"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 @login_required
-@api_view(['GET'])
 def list_locations_view(request):
     if request.method == 'GET':
-        print("list locations")
-        locations = Location.objects.all()
-        return Response(locations.values(), status=status.HTTP_200_OK)
+        locations = Location.objects.all().order_by('-id')
+        return render(request, 'locations/tracked_locations.jinja2', {
+            'locations': locations
+        })
     else:
         return Response({"error": "Invalid method"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
-# TODO: uncomment @login_required and remove permission and authentication classes
-# TODO: probar con integracion con frontend
-# @login_required
-@csrf_exempt
-@api_view(['DELETE'])
-def delete_location_view(request, location_id   ):
-    if request.method == 'DELETE':
-        try:
-            location = Location.objects.get(id=location_id)
-        except Location.DoesNotExist:
-            return Response({"error": f"Location with id: {location_id} not found"}, status=status.HTTP_404_NOT_FOUND)
-        location_data = {"city": location.city, "country": location.country}
-        location.delete()
-        return Response({"message": f"Location: {location_data['city']}, {location_data['country']} deleted successfully"}, status=status.HTTP_200_OK)
+
+import time
+# TODO: implement CACHE
+def get_weather_data_view(request):
+    if request.method == "GET":
+        id = request.GET.get('id')
+        if not id:
+            return Response({"error": "Missing 'id' in GET params"}, status=status.HTTP_400_BAD_REQUEST)
+        location = Location.objects.get(id=id)
+        # TODO: delete this. this only for testing loading state
+        time.sleep(2)
+        weather_data, error_msg = get_weather_data(location.latitude, location.longitude)
+        return render(request, 'locations/tracked_weather_data.jinja2', {
+            'weather_data': weather_data,
+            'error_msg': error_msg,
+            'location': location,
+        })
     else:
         return Response({"error": "Invalid method"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+@login_required
+@require_http_methods(["DELETE"])
+def delete_location_view(request, location_id):
+    try:
+        location = Location.objects.get(id=location_id)
+    except Location.DoesNotExist:
+        return Response({"error": f"Location with id: {location_id} not found"}, status=status.HTTP_404_NOT_FOUND)
+    location.delete()
+
+    response = HttpResponse()
+    response['HX-Refresh'] = 'true'
+    return response

@@ -47,3 +47,26 @@ def find_city_data(
             lng = city_data.get("results")[0].get("geometry").get("location").get("lng")
             return city_name, country_name, lat, lng
     return None
+
+def get_weather_data(
+    latitude: float,
+    longitude: float,
+    
+) -> tuple[Optional[dict], Optional[str]]:
+    """
+    Uses Open-Meteo Forecast API to get current weather data for a given latitude and longitude.
+    if the request is successful, returns the weather data and None.
+    if the request fails, returns None and an error message.
+
+    Args:
+        latitude (float):  Latitude of the location.
+        longitude (float): Longitude of the location.
+        
+        
+    """
+    url = f"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,pressure_msl,wind_speed_10m"
+    response = requests.get(url)
+    if response.status_code == 200:
+        return response.json(), None
+    else:
+        return None, f"Error fetching weather data: {response.text}"
