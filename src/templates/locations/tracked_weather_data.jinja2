@@ -1,34 +1,5 @@
-{# Define icons and descriptions based on Open-Meteo codes #}
-{% set code = weather_data.current.weather_code if weather_data else -1 %}
-{% set mapping = {
-0: ('Clear sky', 'sunny'),
-1: ('Mainly clear', 'sunny'),
-2: ('Partly cloudy', 'cloudy'),
-3: ('Overcast', 'cloudy'),
-45: ('Foggy', 'fog'),
-48: ('Depositing rime fog', 'fog'),
-51: ('Light drizzle', 'drizzle'),
-53: ('Moderate drizzle', 'drizzle'),
-55: ('Dense drizzle', 'drizzle'),
-61: ('Slight rain', 'rain'),
-63: ('Moderate rain', 'rain'),
-65: ('Heavy rain', 'rain'),
-71: ('Slight snow', 'snow'),
-73: ('Moderate snow', 'snow'),
-75: ('Heavy snow', 'snow'),
-77: ('Snow grains', 'snow'),
-80: ('Slight rain showers', 'rain'),
-81: ('Moderate rain showers', 'rain'),
-82: ('Violent rain showers', 'rain'),
-85: ('Slight snow showers', 'snow'),
-86: ('Heavy snow showers', 'snow'),
-95: ('Thunderstorm', 'storm'),
-96: ('Thunderstorm with slight hail', 'storm'),
-99: ('Thunderstorm with heavy hail', 'storm'),
-} %}
-{% set info = mapping.get(code, ('Unknown', 'cloudy')) %}
-{% set description = info[0] %}
-{% set icon = info[1] %}
+{# Weather description and icon are now passed from the view using global_values.WEATHER_CODES #}
+
 
 <div id="weather-card-content-{{ location.id }}" class="relative">
     {# Loading state - shown during htmx request #}
@@ -52,7 +23,7 @@
                 <div class="flex items-center space-x-2">
                     {# Refresh Button #}
                     <button hx-get="{{ url('get_weather_data') }}"
-                        hx-vals='{"id": "{{ location.id }}"}'
+                        hx-vals='{"id": "{{ location.id }}", "refresh_mode": true}'
                         hx-target="#weather-data-{{ location.id }}"
                         hx-indicator="#weather-card-content-{{ location.id }}"
                         class="text-blue-100 hover:text-white transition-colors p-1.5 rounded-full hover:bg-white/10"

@@ -2,37 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from .forms import SignUpForm, SignInForm
+from global_values import WEATHER_CODES
 import requests
-
-
-# Open-Meteo weather code descriptions
-WEATHER_CODES = {
-    0: ('Clear sky', 'sunny'),
-    1: ('Mainly clear', 'sunny'),
-    2: ('Partly cloudy', 'cloudy'),
-    3: ('Overcast', 'cloudy'),
-    45: ('Foggy', 'fog'),
-    48: ('Depositing rime fog', 'fog'),
-    51: ('Light drizzle', 'drizzle'),
-    53: ('Moderate drizzle', 'drizzle'),
-    55: ('Dense drizzle', 'drizzle'),
-    61: ('Slight rain', 'rain'),
-    63: ('Moderate rain', 'rain'),
-    65: ('Heavy rain', 'rain'),
-    71: ('Slight snow', 'snow'),
-    73: ('Moderate snow', 'snow'),
-    75: ('Heavy snow', 'snow'),
-    77: ('Snow grains', 'snow'),
-    80: ('Slight rain showers', 'rain'),
-    81: ('Moderate rain showers', 'rain'),
-    82: ('Violent rain showers', 'rain'),
-    85: ('Slight snow showers', 'snow'),
-    86: ('Heavy snow showers', 'snow'),
-    95: ('Thunderstorm', 'storm'),
-    96: ('Thunderstorm with slight hail', 'storm'),
-    99: ('Thunderstorm with heavy hail', 'storm'),
-}
-
 
 def signup_view(request):
     if request.user.is_authenticated:

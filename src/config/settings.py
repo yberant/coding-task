@@ -155,3 +155,15 @@ LOGIN_URL = '/accounts/login/'
 
 # OpenWeatherMap API
 OPENWEATHERMAP_API_KEY = '27a6b301f586bf519983166b994b5377'
+
+# Caching
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': os.getenv('REDIS_PUBLIC_URL', ''),
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
+

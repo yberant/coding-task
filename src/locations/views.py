@@ -6,11 +6,19 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
 from django.db import IntegrityError
-
-from .services import find_city_data, get_weather_data
 from .models import Location
 from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods
+from global_values import WEATHER_CODES
+from .services import (
+    find_city_data,
+    get_weather_data,
+    get_cached_weather_data,
+    set_cached_weather_data
+)
+from .repository import LocationRepository
+
+locationRepository = LocationRepository()
 
 
 @login_required
@@ -45,7 +53,8 @@ def create_location_view(request):
                 return redirect('create_location')
             
             # Check if the city already exists to avoid unnecessary API calls
-            if Location.objects.filter(city=city_name_input, country=country_name_input).exists():
+            # if Location.objects.filter(city=city_name_input, country=country_name_input).exists():
+            if locationRepository.filter_location_by_name(city_name=city_name_input, country_name=country_name_input):
                 messages.error(request, f"City location: {city_name_input}, {country_name_input} already exists in database")
                 return redirect('create_location')
 
@@ -72,18 +81,17 @@ def create_location_view(request):
             
         city_name, country_name, lat, lon = city_data
 
-        try:
-            Location.objects.create(
-                city=city_name,
-                country=country_name,
-                latitude=lat,
-                longitude=lon,
-            )
-            messages.success(request, f"City Location: {city_name}, {country_name} created successfully")
-            return redirect('dashboard')
-        except IntegrityError:
-            messages.error(request, f"Found City location ({city_name}, {country_name}) already exists in database")
+        _ , error = locationRepository.create_location(
+            city_name=city_name,
+            country_name=country_name,
+            latitude=lat,
+            longitude=lon,
+        )
+        if error:
+            messages.error(request, error)
             return redirect('create_location')
+        messages.success(request, f"City Location: {city_name}, {country_name} created successfully")
+        return redirect('dashboard')
         
     else:
         return Response({"error": "Invalid method"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -91,7 +99,7 @@ def create_location_view(request):
 @login_required
 def list_locations_view(request):
     if request.method == 'GET':
-        locations = Location.objects.all().order_by('-id')
+        locations = locationRepository.get_all_locations(order_by='-id')
         return render(request, 'locations/tracked_locations.jinja2', {
             'locations': locations
         })
@@ -100,20 +108,42 @@ def list_locations_view(request):
 
 
 import time
-# TODO: implement CACHE
 def get_weather_data_view(request):
     if request.method == "GET":
         id = request.GET.get('id')
         if not id:
             return Response({"error": "Missing 'id' in GET params"}, status=status.HTTP_400_BAD_REQUEST)
-        location = Location.objects.get(id=id)
-        # TODO: delete this. this only for testing loading state
-        time.sleep(2)
-        weather_data, error_msg = get_weather_data(location.latitude, location.longitude)
+
+        location, _ = locationRepository.get_location_by_id(id)
+        # refresh mode only would be true if this request was triggered by the refresh button
+        refresh_mode = request.GET.get('refresh_mode', False)
+
+        cached_weather_data = get_cached_weather_data(id)
+        if cached_weather_data and not refresh_mode:
+            print("using cache")
+            weather_data = cached_weather_data
+            error_msg = None
+        else:
+            # NOTE: this sleep is only here for testing loading state and cache retrieval
+            time.sleep(1)
+            weather_data, error_msg = get_weather_data(location.latitude, location.longitude)
+            print("setting cache")
+            set_cached_weather_data(id, weather_data)
+        
+        # Get description and icon from global mapping
+        # weather_code = weather_data.get('current', {}).get('weather_code', -1) if weather_data else -1
+        if weather_data.get('current'):
+            weather_code = weather_data.get('current').get('weather_code')
+        else:
+            weather_code = -1
+        description, icon = WEATHER_CODES.get(weather_code, ('Unknown', 'cloudy'))
+
         return render(request, 'locations/tracked_weather_data.jinja2', {
             'weather_data': weather_data,
             'error_msg': error_msg,
             'location': location,
+            'description': description,
+            'icon': icon,
         })
     else:
         return Response({"error": "Invalid method"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -122,10 +152,9 @@ def get_weather_data_view(request):
 @login_required
 @require_http_methods(["DELETE"])
 def delete_location_view(request, location_id):
-    try:
-        location = Location.objects.get(id=location_id)
-    except Location.DoesNotExist:
-        return Response({"error": f"Location with id: {location_id} not found"}, status=status.HTTP_404_NOT_FOUND)
+    location, error = locationRepository.get_location_by_id(location_id)
+    if error:
+        return Response({"error": error}, status=status.HTTP_404_NOT_FOUND)
     location.delete()
 
     response = HttpResponse()

@@ -1,4 +1,3 @@
-# Open-Meteo weather code descriptions
 WEATHER_CODES = {
     0: ('Clear sky', 'sunny'),
     1: ('Mainly clear', 'sunny'),
@@ -25,21 +24,3 @@ WEATHER_CODES = {
     96: ('Thunderstorm with slight hail', 'storm'),
     99: ('Thunderstorm with heavy hail', 'storm'),
 }
-
-def format_weather_data(raw_data: dict) -> dict:
-    """
-    Formats raw weather data from Open-Meteo into a structured dictionary.
-    """
-    current = raw_data.get('current', {})
-    weather_code = current.get('weather_code')
-    description, icon = WEATHER_CODES.get(weather_code, ('Unknown', 'cloudy'))
-    
-    return {
-        'temperature': round(current.get('temperature_2m', 0)),
-        'feels_like': round(current.get('apparent_temperature', 0)),
-        'humidity': round(current.get('relative_humidity_2m', 0)),
-        'description': description,
-        'icon': icon,
-        'wind_speed': round(current.get('wind_speed_10m', 0)),
-        'pressure': round(current.get('pressure_msl', 0)),
-    }

@@ -1,6 +1,23 @@
 import requests
 from typing import Optional
 import os
+from django.core.cache import cache
+
+def get_cached_weather_data(location_id: int):
+    """
+    Gets the weather data from the cache for a given location id.
+    """
+    cache_key = f"weather_{location_id}"
+    return cache.get(cache_key)
+
+def set_cached_weather_data(location_id: int, weather_data: dict):
+    """
+    Sets the weather data in the cache for a given location id.
+    The cache will expire in 15 minutes.
+    """
+    cache_key = f"weather_{location_id}"
+    cache.set(cache_key, weather_data, timeout=60*15)
+
 
 def find_city_data(
     **kwargs

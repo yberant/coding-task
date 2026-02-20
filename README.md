@@ -10,24 +10,35 @@ A Django application for tracking weather conditions with customizable widgets. 
 
 ## Getting Started
 
+### Env variables
+
+an .env file must be created with the following variables:
+
+- GEOCODING_API_KEY: Your geocoding_api_key
+- REDIS_PUBLIC_URL: A redis url (for caching)
+
 ### Without Docker
 
 1. Install dependencies:
+
 ```bash
 uv sync
 ```
 
 2. Run migrations:
+
 ```bash
 uv run python src/manage.py migrate
 ```
 
 3. Create a superuser (optional):
+
 ```bash
 uv run python src/manage.py createsuperuser
 ```
 
 4. Start the development server:
+
 ```bash
 uv run python src/manage.py runserver
 ```
@@ -37,6 +48,7 @@ The app will be available at http://localhost:8000
 ### With Docker
 
 1. Build and start the container:
+
 ```bash
 docker compose up --build
 ```
@@ -46,11 +58,13 @@ This will automatically run migrations and start the server.
 The app will be available at http://localhost:8000
 
 To run in detached mode:
+
 ```bash
 docker compose up -d --build
 ```
 
 To stop:
+
 ```bash
 docker compose down
 ```
