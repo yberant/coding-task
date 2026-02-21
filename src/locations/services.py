@@ -1,7 +1,9 @@
-import requests
-from typing import Optional
 import os
+from typing import Optional
+
+import requests
 from django.core.cache import cache
+
 
 def get_cached_weather_data(location_id: int):
     """
@@ -10,18 +12,17 @@ def get_cached_weather_data(location_id: int):
     cache_key = f"weather_{location_id}"
     return cache.get(cache_key)
 
+
 def set_cached_weather_data(location_id: int, weather_data: dict):
     """
     Sets the weather data in the cache for a given location id.
     The cache will expire in 15 minutes.
     """
     cache_key = f"weather_{location_id}"
-    cache.set(cache_key, weather_data, timeout=60*15)
+    cache.set(cache_key, weather_data, timeout=60 * 15)
 
 
-def find_city_data(
-    **kwargs
-) -> Optional[tuple[str, str, float, float]]:
+def find_city_data(**kwargs) -> Optional[tuple[str, str, float, float]]:
     """
     Find city data quering the google geolocation API, return a tuple with the following values in order:
         - city name (as appears from the api result)
@@ -31,9 +32,8 @@ def find_city_data(
     If the city is not found, returns None instead.
     As for the params, we can search by:
         - city name and country name (city_name_input: str, country_name_input: str)
-        - latitude and longitude (latitude_input: float, longitude_input: float)    
+        - latitude and longitude (latitude_input: float, longitude_input: float)
     """
-
 
     latitude_input = kwargs.get("latitude_input")
     longitude_input = kwargs.get("longitude_input")
@@ -56,8 +56,22 @@ def find_city_data(
         address_components = city_data.get("results")[0].get("address_components")
 
         # find city name and country name (as appears from the api result (Is important that we have a consistent source instead of saving human typed values in the database
-        city_name = next((component["long_name"] for component in address_components if "locality" in component["types"]), None)
-        country_name = next((component["long_name"] for component in address_components if "country" in component["types"]), None)
+        city_name = next(
+            (
+                component["long_name"]
+                for component in address_components
+                if "locality" in component["types"]
+            ),
+            None,
+        )
+        country_name = next(
+            (
+                component["long_name"]
+                for component in address_components
+                if "country" in component["types"]
+            ),
+            None,
+        )
 
         if city_name and country_name:
             lat = city_data.get("results")[0].get("geometry").get("location").get("lat")
@@ -65,10 +79,10 @@ def find_city_data(
             return city_name, country_name, lat, lng
     return None
 
+
 def get_weather_data(
     latitude: float,
     longitude: float,
-    
 ) -> tuple[Optional[dict], Optional[str]]:
     """
     Uses Open-Meteo Forecast API to get current weather data for a given latitude and longitude.
@@ -78,8 +92,8 @@ def get_weather_data(
     Args:
         latitude (float):  Latitude of the location.
         longitude (float): Longitude of the location.
-        
-        
+
+
     """
     url = f"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,pressure_msl,wind_speed_10m"
     response = requests.get(url)

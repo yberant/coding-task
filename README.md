@@ -75,6 +75,16 @@ docker compose down
 2. Create an account or sign in
 3. View your weather dashboard with current location weather
 
+## Testing
+
+To run tests, using uv:
+
+```bash
+uv run python src/manage.py test
+```
+
+# TODO: how to run tests with docker?
+
 ## Project Structure
 
 ```
