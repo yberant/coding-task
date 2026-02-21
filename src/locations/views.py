@@ -74,9 +74,13 @@ def create_location_view(request):
                 )
                 return redirect("create_location")
 
-            city_data = find_city_data(
-                city_name_input=city_name_input, country_name_input=country_name_input
-            )
+            try:
+                city_data = find_city_data(
+                    city_name_input=city_name_input, country_name_input=country_name_input
+                )
+            except ValueError as e:
+                messages.error(request, str(e))
+                return redirect("create_location")
 
         elif find_method == "coordinates":
             lat_val = request.POST.get("latitude")
@@ -90,8 +94,11 @@ def create_location_view(request):
 
             lat = float(lat_val)
             lon = float(lon_val)
-
-            city_data = find_city_data(latitude_input=lat, longitude_input=lon)
+            try:
+                city_data = find_city_data(latitude_input=lat, longitude_input=lon)
+            except ValueError as e:
+                messages.error(request, str(e))
+                return redirect("create_location")
         else:
             messages.error(
                 request, "Invalid find method. Must be 'name' or 'coordinates'"
@@ -158,22 +165,28 @@ def get_weather_data_view(request):
         else:
             # NOTE: this sleep is only here for testing loading state and cache retrieval
             time.sleep(1)
-            weather_data, error_msg = get_weather_data(
-                location.latitude, location.longitude
-            )
-            set_cached_weather_data(id, weather_data)
+
             try:
-                weatherSnapshotRepository.create_weather_snapshot(
-                    location, weather_data
+                weather_data = get_weather_data(
+                    location.latitude, location.longitude
                 )
+                error_msg = None
             except Exception as exception:
-                # NOTE: in real production environments, this should send an error log to some monitorization service instead of a simple print
-                print("Error creating weather snapshot: ", exception)
-                messages.error(request, exception)
+                error_msg = str(exception)
+                weather_data = None
+
+            if weather_data:
+                set_cached_weather_data(id, weather_data)
+                try:
+                    weatherSnapshotRepository.create_weather_snapshot(
+                        location, weather_data
+                    )
+                except Exception as exception:
+                    # NOTE: for big production environments, this should be a log instead of a simple print
+                    print(f"error setting cache of snapshot for city: {location.city_name}, {location.country_name}")
 
         # Get description and icon from global mapping
-        # weather_code = weather_data.get('current', {}).get('weather_code', -1) if weather_data else -1
-        if weather_data.get("current"):
+        if weather_data and weather_data.get("current"):
             weather_code = weather_data.get("current").get("weather_code")
         else:
             weather_code = -1
@@ -208,7 +221,6 @@ def delete_location_view(request, location_id):
     response = HttpResponse()
     response["HX-Refresh"] = "true"
     return response
-
 
 @login_required
 def get_weather_shanpshots_of_location_view(request, location_id):

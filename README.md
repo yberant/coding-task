@@ -80,7 +80,7 @@ docker compose down
 To run tests, using uv:
 
 ```bash
-uv run python src/manage.py test
+uv run python src/manage.py test locations
 ```
 
 # TODO: how to run tests with docker?

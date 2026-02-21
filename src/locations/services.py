@@ -77,17 +77,19 @@ def find_city_data(**kwargs) -> Optional[tuple[str, str, float, float]]:
             lat = city_data.get("results")[0].get("geometry").get("location").get("lat")
             lng = city_data.get("results")[0].get("geometry").get("location").get("lng")
             return city_name, country_name, lat, lng
+    elif response.status_code != 200:
+        raise ValueError("Error fetching city data: " + response.text)
     return None
 
 
 def get_weather_data(
     latitude: float,
     longitude: float,
-) -> tuple[Optional[dict], Optional[str]]:
+) -> Optional[dict]:
     """
     Uses Open-Meteo Forecast API to get current weather data for a given latitude and longitude.
-    if the request is successful, returns the weather data and None.
-    if the request fails, returns None and an error message.
+    if the request is successful, returns the weather data.
+    if the request fails, raises an exception.
 
     Args:
         latitude (float):  Latitude of the location.
@@ -98,6 +100,6 @@ def get_weather_data(
     url = f"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,pressure_msl,wind_speed_10m"
     response = requests.get(url)
     if response.status_code == 200:
-        return response.json(), None
+        return response.json()
     else:
-        return None, f"Error fetching weather data: {response.text}"
+        raise Exception(f"Error fetching weather data: {response.text}")
