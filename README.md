@@ -83,7 +83,11 @@ To run tests, using uv:
 uv run python src/manage.py test locations
 ```
 
-# TODO: how to run tests with docker?
+To run test from docker (container must be running):
+
+```bash
+docker compose exec web uv run python src/manage.py test locations
+```
 
 ## Project Structure
 
@@ -97,5 +101,32 @@ weather-dashboard/
     ├── accounts/       # Authentication app
     ├── config/         # Django settings
     ├── templates/      # Jinja2 templates
+    |── locations/      # Locations app
+    |   ├── models.py   # Models for the locations app (Location and WeatherSnapshot)
+    |   ├── services.py # Services for the locations app (Api Calling and Cache)
+    |   ├── repositories.py # Repositories for the locations app (model interaction)
+    |   ├── views.py    # Views for the locations app
+    |   ├── urls.py     # URLs for the locations app
+    |   └── tests/      # Tests for the locations app
+    |       ├── test_services.py # Tests for services
+    |       ├── test_repositories.py # Tests for repositories
+    |       └── test_views.py    # Tests for views (currently just for list_locations_view)
+    |── db.sqlite3 # Database file
+    |── .env # Environment variables (must be created, is on .gitignore)
+    |── global_values.py # Global values for the application
+    |── templates/
+    |   ├── base.html   # Base template
+    |   ├── home.html   # Home template
+    |   ├── error_page.html  # Error page template
+    |   ├── dashboard.html   # Dashboard template
+    |   |── accounts/  # Accounts templates
+    |   |   ├── login.html   # Login template
+    |   |   └── signup.html   # Signup template
+    |   └── locations/  # Locations templates
+    |       ├── create_location.html # Create location template
+    |       ├── tracked_locations.html # List locations template
+    |       ├── tracked_location_data.html # Location data template
+    |       ├── weather_data.html # weather data of location and card buttons template
+    |       └── weather_history.html # weather shanpshots of location template
     └── manage.py
 ```
