@@ -175,7 +175,7 @@ def get_weather_data_view(request, location_id):
             weather_data = cached_weather_data
             error_msg = None
         else:
-            # NOTE: this sleep is only here for testing loading state and cache retrieval
+            # NOTE: this sleep is only here for testing loading state and cache retrieval. In real production, we would not have this sleep.
             time.sleep(1)
 
             try:
