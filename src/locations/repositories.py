@@ -8,12 +8,27 @@ from .models import Location, WeatherSnapshot
 
 class LocationRepository:
     def get_all_locations(self, order_by: str = "-id") -> QuerySet:
+        """
+        Returns all locations ordered by the given order_by parameter.
+
+        params:
+
+        """
         return Location.objects.order_by(order_by)
 
     def filter_location_by_name(self, city_name: str, country_name: str) -> QuerySet:
+        """
+        Returns all locations filtered by the given city_name and country_name parameters.
+        """
         return Location.objects.filter(city=city_name, country=country_name)
 
     def get_location_by_id(self, id: int) -> Optional[Location]:
+        """
+        Returns the location with the given id.
+
+        params:
+            id (int): The id of the location.
+        """
         try:
             return Location.objects.get(id=id)
         except Location.DoesNotExist as exception:
@@ -24,6 +39,15 @@ class LocationRepository:
     def create_location(
         self, city_name: str, country_name: str, latitude: float, longitude: float
     ) -> Optional[Location]:
+        """
+        Creates a new location.
+
+        params:
+            city_name (str): The name of the city.
+            country_name (str): The name of the country.
+            latitude (float): The latitude of the location.
+            longitude (float): The longitude of the location.
+        """
 
         try:
             with transaction.atomic():
@@ -41,6 +65,12 @@ class LocationRepository:
             raise Exception(f"Error creating location: {exception}") from exception
 
     def delete_location(self, location: Location) -> Location:
+        """
+        Deletes a location.
+
+        params:
+            location (Location): The location to delete.
+        """
         location.delete()
         return location
 
@@ -51,6 +81,9 @@ class WeatherSnapshotRepository:
         location: Location,
         weather_data: dict,
     ) -> Optional[WeatherSnapshot]:
+        """
+        Creates a new weather snapshot for the given location.
+        """
         try:
             current_weather_data = weather_data.get("current")
             new_snapshot = WeatherSnapshot(

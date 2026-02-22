@@ -10,6 +10,9 @@ class CacheService:
     def get_cached_weather_data(self, location_id: int):
         """
         Gets the weather data from the cache for a given location id.
+
+        params:
+            location_id (int): The id of the location.
         """
         try:
             cache_key = f"weather_{location_id}"
@@ -25,6 +28,10 @@ class CacheService:
         """
         Sets the weather data in the cache for a given location id.
         The cache will expire in 15 minutes.
+
+        params:
+            location_id (int): The id of the location.
+            weather_data (dict): The weather data to cache.
         """
         try:
             cache_key = f"weather_{location_id}"
@@ -111,17 +118,13 @@ class ApiCallService:
         self,
         latitude: float,
         longitude: float,
-    ) -> Optional[dict]:
+    ) -> dict:
         """
         Uses Open-Meteo Forecast API to get current weather data for a given latitude and longitude.
-        if the request is successful, returns the weather data.
-        if the request fails, raises an exception.
 
-        Args:
+        params:
             latitude (float):  Latitude of the location.
             longitude (float): Longitude of the location.
-
-
         """
         url = f"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,pressure_msl,wind_speed_10m"
         response = requests.get(url)

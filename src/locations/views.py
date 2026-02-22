@@ -139,6 +139,9 @@ def create_location_view(request):
 
 @login_required
 def list_locations_view(request):
+    """
+    View to render list of locations
+    """
     if request.method == "GET":
         locations = locationRepository.get_all_locations(order_by="-id")
         return render(
@@ -151,6 +154,10 @@ def list_locations_view(request):
 
 
 def get_weather_data_view(request, location_id):
+    """
+    View to obtain weather data for each card and render its card.
+    Search for cached data first, if not found, call the API and cache the result.
+    """
     if request.method == "GET":
         if not location_id:
             return Response(
