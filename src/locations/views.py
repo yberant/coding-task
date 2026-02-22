@@ -145,20 +145,20 @@ def list_locations_view(request):
         )
 
 
-def get_weather_data_view(request):
+def get_weather_data_view(request, location_id):
     if request.method == "GET":
-        id = request.GET.get("id")
-        if not id:
+        if not location_id:
             return Response(
-                {"error": "Missing 'id' in GET params"},
+                {"error": "Missing 'location_id' in GET params"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        location = locationRepository.get_location_by_id(id)
+        location = locationRepository.get_location_by_id(location_id)
         # refresh mode only would be true if this request was triggered by the refresh button
         refresh_mode = request.GET.get("refresh_mode", False)
 
-        cached_weather_data = get_cached_weather_data(id)
+        cached_weather_data = get_cached_weather_data(location_id)
+
         if cached_weather_data and not refresh_mode:
             weather_data = cached_weather_data
             error_msg = None
@@ -176,14 +176,14 @@ def get_weather_data_view(request):
                 weather_data = None
 
             if weather_data:
-                set_cached_weather_data(id, weather_data)
+                set_cached_weather_data(location_id, weather_data)
                 try:
                     weatherSnapshotRepository.create_weather_snapshot(
                         location, weather_data
                     )
                 except Exception as exception:
                     # NOTE: for big production environments, this should be a log instead of a simple print
-                    print(f"error setting cache of snapshot for city: {location.city_name}, {location.country_name}")
+                    print(f"error setting cache of snapshot for city: {location.city}, {location.country}")
 
         # Get description and icon from global mapping
         if weather_data and weather_data.get("current"):

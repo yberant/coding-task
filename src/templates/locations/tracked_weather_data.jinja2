@@ -30,8 +30,8 @@
 
 
                     {# Refresh Button #}
-                    <button hx-get="{{ url('get_weather_data') }}"
-                        hx-vals='{"id": "{{ location.id }}", "refresh_mode": true}'
+                    <button hx-get="{{ url('get_weather_data', location_id=location.id) }}"
+                        hx-vals='{"refresh_mode": true}'
                         hx-target="#weather-data-{{ location.id }}"
                         hx-indicator="#weather-card-content-{{ location.id }}"
                         class="text-blue-100 hover:text-white transition-colors p-1.5 rounded-full hover:bg-white/10"

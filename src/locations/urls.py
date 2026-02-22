@@ -8,7 +8,7 @@ urlpatterns = [
     path(
         "delete/<int:location_id>/", views.delete_location_view, name="delete_location"
     ),
-    path("get-weather/", views.get_weather_data_view, name="get_weather_data"),
+    path("get-weather/<int:location_id>/", views.get_weather_data_view, name="get_weather_data"),
     path(
         "weather-history/<int:location_id>/",
         views.get_weather_shanpshots_of_location_view,

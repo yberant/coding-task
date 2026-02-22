@@ -2,9 +2,8 @@
     {% for loc in locations %}
         <div class="bg-white rounded-lg shadow-lg dark:bg-gray-800 overflow-hidden">
             <div
-                hx-get="{{ url('get_weather_data') }}"
+                hx-get="{{ url('get_weather_data', loc.id) }}"
                 hx-trigger="load"
-                hx-vals='{"id": "{{ loc.id }}"}'
                 hx-target="#weather-data-{{ loc.id }}"
                 hx-swap="innerHTML"
             >

@@ -9,8 +9,13 @@ def get_cached_weather_data(location_id: int):
     """
     Gets the weather data from the cache for a given location id.
     """
-    cache_key = f"weather_{location_id}"
-    return cache.get(cache_key)
+    try:
+        cache_key = f"weather_{location_id}"
+        return cache.get(cache_key)
+    except Exception as exception:
+        # NOTE: in production this should be logged
+        print(f"error getting cache of snapshot for city: {location_id}, {exception}")
+        return None
 
 
 def set_cached_weather_data(location_id: int, weather_data: dict):
@@ -18,9 +23,12 @@ def set_cached_weather_data(location_id: int, weather_data: dict):
     Sets the weather data in the cache for a given location id.
     The cache will expire in 15 minutes.
     """
-    cache_key = f"weather_{location_id}"
-    cache.set(cache_key, weather_data, timeout=60 * 15)
-
+    try:
+        cache_key = f"weather_{location_id}"
+        cache.set(cache_key, weather_data, timeout=60 * 15)
+    except Exception as exception:
+        # NOTE: in production this should be logged
+        print(f"error setting cache of snapshot for city: {location_id}, {exception}")
 
 def find_city_data(**kwargs) -> Optional[tuple[str, str, float, float]]:
     """

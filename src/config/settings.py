@@ -14,6 +14,7 @@ import os
 from pathlib import Path
 
 from dotenv import load_dotenv
+import sys
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -164,6 +165,19 @@ CACHES = {
         "LOCATION": os.getenv("REDIS_PUBLIC_URL", ""),
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            # CHANGE: Socket timeouts to prevent the app from hanging
+            "SOCKET_CONNECT_TIMEOUT": 5,
+            "SOCKET_TIMEOUT": 5,
+            # CHANGE: Health checks and retries to handle Railway proxy resets
+            "CONNECTION_POOL_KWARGS": {
+                "retry_on_timeout": True,
+                "health_check_interval": 30, # Checks if connection is alive every 30s
+            },
         },
+    }
+} if (not 'test' in sys.argv) else {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "unique-snowflake",
     }
 }
