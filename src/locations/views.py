@@ -19,14 +19,16 @@ from .repositories import (
     WeatherSnapshotRepository,
 )
 from .services import (
-    find_city_data,
-    get_cached_weather_data,
-    get_weather_data,
-    set_cached_weather_data,
+    ApiCallService,
+    CacheService,
 )
 
+# repositories initialization
 locationRepository = LocationRepository()
 weatherSnapshotRepository = WeatherSnapshotRepository()
+# services initialization
+apiCallService = ApiCallService()
+cacheService = CacheService()
 
 
 @login_required
@@ -75,8 +77,9 @@ def create_location_view(request):
                 return redirect("create_location")
 
             try:
-                city_data = find_city_data(
-                    city_name_input=city_name_input, country_name_input=country_name_input
+                city_data = apiCallService.find_city_data(
+                    city_name_input=city_name_input,
+                    country_name_input=country_name_input,
                 )
             except ValueError as e:
                 messages.error(request, str(e))
@@ -95,7 +98,9 @@ def create_location_view(request):
             lat = float(lat_val)
             lon = float(lon_val)
             try:
-                city_data = find_city_data(latitude_input=lat, longitude_input=lon)
+                city_data = apiCallService.find_city_data(
+                    latitude_input=lat, longitude_input=lon
+                )
             except ValueError as e:
                 messages.error(request, str(e))
                 return redirect("create_location")
@@ -157,7 +162,7 @@ def get_weather_data_view(request, location_id):
         # refresh mode only would be true if this request was triggered by the refresh button
         refresh_mode = request.GET.get("refresh_mode", False)
 
-        cached_weather_data = get_cached_weather_data(location_id)
+        cached_weather_data = cacheService.get_cached_weather_data(location_id)
 
         if cached_weather_data and not refresh_mode:
             weather_data = cached_weather_data
@@ -167,7 +172,7 @@ def get_weather_data_view(request, location_id):
             time.sleep(1)
 
             try:
-                weather_data = get_weather_data(
+                weather_data = apiCallService.get_weather_data(
                     location.latitude, location.longitude
                 )
                 error_msg = None
@@ -176,14 +181,16 @@ def get_weather_data_view(request, location_id):
                 weather_data = None
 
             if weather_data:
-                set_cached_weather_data(location_id, weather_data)
+                cacheService.set_cached_weather_data(location_id, weather_data)
                 try:
                     weatherSnapshotRepository.create_weather_snapshot(
                         location, weather_data
                     )
                 except Exception as exception:
                     # NOTE: for big production environments, this should be a log instead of a simple print
-                    print(f"error setting cache of snapshot for city: {location.city}, {location.country}")
+                    print(
+                        f"error setting cache of snapshot for city: {location.city}, {location.country}"
+                    )
 
         # Get description and icon from global mapping
         if weather_data and weather_data.get("current"):
@@ -221,6 +228,7 @@ def delete_location_view(request, location_id):
     response = HttpResponse()
     response["HX-Refresh"] = "true"
     return response
+
 
 @login_required
 def get_weather_shanpshots_of_location_view(request, location_id):

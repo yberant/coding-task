@@ -1,7 +1,9 @@
-from django.test import TestCase, Client
 from django.contrib.auth.models import User
+from django.test import Client, TestCase
 from django.urls import reverse
+
 from ..models import Location
+
 
 class TestViews(TestCase):
     def setUp(self):
@@ -39,7 +41,7 @@ class TestViews(TestCase):
         url = reverse("list_locations")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        content = response.content.decode('utf-8')
+        content = response.content.decode("utf-8")
         for location in Location.objects.all():
             expected_target = f'hx-target="#weather-data-{location.id}"'
             self.assertIn(expected_target, content)

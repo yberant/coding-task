@@ -4,15 +4,20 @@ from django.core.cache import cache
 from django.test import TestCase
 
 from ..services import (
-    find_city_data,
-    get_cached_weather_data,
-    get_weather_data,
-    set_cached_weather_data,
+    ApiCallService,
+    CacheService,
 )
-from .mocks import MOCK_GEOCODING_API_RESPONSE, MOCK_WEATHER_API_RESPONSE, MOCK_CACHE_DATA
+from .mocks import (
+    MOCK_CACHE_DATA,
+    MOCK_GEOCODING_API_RESPONSE,
+    MOCK_WEATHER_API_RESPONSE,
+)
 
 
 class TestApiServices(TestCase):
+
+    def setUp(self):
+        self.apiCallService = ApiCallService()
 
     @patch("locations.services.requests.get")
     def test__find_city_data__find_by_name_success(self, mock_get):
@@ -33,7 +38,7 @@ class TestApiServices(TestCase):
             .get("long_name")
         )
 
-        result = find_city_data(
+        result = self.apiCallService.find_city_data(
             city_name_input=city_name_input, country_name_input=country_name_input
         )
         self.assertEqual(
@@ -73,7 +78,7 @@ class TestApiServices(TestCase):
             .get("lng")
         )
 
-        result = find_city_data(
+        result = self.apiCallService.find_city_data(
             latitude_input=latitude_input, longitude_input=longitude_input
         )
         self.assertEqual(
@@ -94,7 +99,7 @@ class TestApiServices(TestCase):
     def test__find_city_data__not_found_failure(self, mock_get):
         mock_get.return_value.status_code = 200
         mock_get.return_value.json.return_value = {"results": []}
-        result = find_city_data(
+        result = self.apiCallService.find_city_data(
             city_name_input="some city", country_name_input="some country"
         )
         self.assertIsNone(result)
@@ -107,7 +112,7 @@ class TestApiServices(TestCase):
         with self.assertRaises(
             ValueError, msg=f"Error fetching city data: {text_error}"
         ):
-            find_city_data(
+            self.apiCallService.find_city_data(
                 city_name_input="some city", country_name_input="some country"
             )
 
@@ -115,7 +120,7 @@ class TestApiServices(TestCase):
     def test__get_weather_data__success(self, mock_get):
         mock_get.return_value.status_code = 200
         mock_get.return_value.json.return_value = MOCK_WEATHER_API_RESPONSE
-        result = get_weather_data(latitude=0, longitude=0)
+        result = self.apiCallService.get_weather_data(latitude=0, longitude=0)
         self.assertEqual(result, MOCK_WEATHER_API_RESPONSE)
 
     @patch("locations.services.requests.get")
@@ -126,25 +131,32 @@ class TestApiServices(TestCase):
         with self.assertRaises(
             Exception, msg=f"Error fetching weather data: {text_error}"
         ):
-            get_weather_data(latitude=0, longitude=0)
+            self.apiCallService.get_weather_data(latitude=0, longitude=0)
+
 
 class testCache(TestCase):
     def setUp(self):
         cache.clear()
+        self.cacheService = CacheService()
 
     def test__get_cached_weather_data__unexistent_key(self):
         unexistent_location_id = 1
-        self.assertIsNone(get_cached_weather_data(unexistent_location_id))
+        self.assertIsNone(
+            self.cacheService.get_cached_weather_data(unexistent_location_id)
+        )
 
     def test__get_cached_weather_data__existent_key(self):
         location_id = 1
         weather_data = MOCK_CACHE_DATA
-        set_cached_weather_data(location_id, weather_data)
-        self.assertEqual(get_cached_weather_data(location_id), weather_data)
+        self.cacheService.set_cached_weather_data(location_id, weather_data)
+        self.assertEqual(
+            self.cacheService.get_cached_weather_data(location_id), weather_data
+        )
 
     def test__set_cached_weather_data__success(self):
         location_id = 1
         weather_data = MOCK_CACHE_DATA
-        set_cached_weather_data(location_id, weather_data)
-        self.assertEqual(get_cached_weather_data(location_id), weather_data)
-        
+        self.cacheService.set_cached_weather_data(location_id, weather_data)
+        self.assertEqual(
+            self.cacheService.get_cached_weather_data(location_id), weather_data
+        )

@@ -11,10 +11,10 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 import os
+import sys
 from pathlib import Path
 
 from dotenv import load_dotenv
-import sys
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -159,25 +159,29 @@ LOGIN_URL = "/accounts/login/"
 OPENWEATHERMAP_API_KEY = "27a6b301f586bf519983166b994b5377"
 
 # Caching
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": os.getenv("REDIS_PUBLIC_URL", ""),
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            # CHANGE: Socket timeouts to prevent the app from hanging
-            "SOCKET_CONNECT_TIMEOUT": 5,
-            "SOCKET_TIMEOUT": 5,
-            # CHANGE: Health checks and retries to handle Railway proxy resets
-            "CONNECTION_POOL_KWARGS": {
-                "retry_on_timeout": True,
-                "health_check_interval": 30, # Checks if connection is alive every 30s
+CACHES = (
+    {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": os.getenv("REDIS_PUBLIC_URL", ""),
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                # CHANGE: Socket timeouts to prevent the app from hanging
+                "SOCKET_CONNECT_TIMEOUT": 5,
+                "SOCKET_TIMEOUT": 5,
+                # CHANGE: Health checks and retries to handle Railway proxy resets
+                "CONNECTION_POOL_KWARGS": {
+                    "retry_on_timeout": True,
+                    "health_check_interval": 30,  # Checks if connection is alive every 30s
+                },
             },
-        },
+        }
     }
-} if (not 'test' in sys.argv) else {
-    "default": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": "unique-snowflake",
+    if (not "test" in sys.argv)
+    else {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "unique-snowflake",
+        }
     }
-}
+)
