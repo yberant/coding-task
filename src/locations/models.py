@@ -5,6 +5,7 @@ from django.db import models
 class Location(models.Model):
     city = models.CharField(max_length=90)  # longest city name is 86 chars
     country = models.CharField(max_length=60)  # longest country name in 56 chars
+    last_updated = models.DateTimeField(auto_now=True)
     latitude = models.FloatField(
         validators=[
             MinValueValidator(-90),

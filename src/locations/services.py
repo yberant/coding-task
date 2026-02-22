@@ -126,7 +126,7 @@ class ApiCallService:
             latitude (float):  Latitude of the location.
             longitude (float): Longitude of the location.
         """
-        url = f"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,pressure_msl,wind_speed_10m"
+        url = f"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,pressure_msl,wind_speed_10m&timezone=auto"
         response = requests.get(url)
         if response.status_code == 200:
             return response.json()

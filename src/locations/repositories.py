@@ -1,5 +1,6 @@
 from typing import Optional
 
+import django.utils.timezone as timezone
 from django.db import IntegrityError, transaction
 from django.db.models import QuerySet
 
@@ -72,6 +73,17 @@ class LocationRepository:
             location (Location): The location to delete.
         """
         location.delete()
+        return location
+
+    def update_last_updated(self, location: Location) -> Location:
+        """
+        Updates the last_updated field of the given location.
+
+        params:
+            location (Location): The location to update.
+        """
+        location.last_updated = timezone.now()
+        location.save()
         return location
 
 

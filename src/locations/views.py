@@ -188,6 +188,7 @@ def get_weather_data_view(request, location_id):
                 weather_data = None
 
             if weather_data:
+                locationRepository.update_last_updated(location)
                 cacheService.set_cached_weather_data(location_id, weather_data)
                 try:
                     weatherSnapshotRepository.create_weather_snapshot(
